@@ -63,7 +63,6 @@ class MyAppState extends ChangeNotifier {
   }
 
   void sortPlayers() {
-    gamestate.scoreSort();
     switch (gamestate.scoreType())
     {
       case "ascending":
@@ -101,6 +100,7 @@ class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "ascending", "decending"];
   var playerCount = 0;
+  var startingScore = 0;
 
   Gamestate();
 
@@ -122,6 +122,10 @@ class Gamestate extends ChangeNotifier {
   void removePlayer(){
     playerCount--;
   }
+
+  void updateBaseScore(var score){
+    startingScore = score;
+  }
 }
 
 
@@ -132,7 +136,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>{
   var selectedIndex = 0;
-  var gamestate = Gamestate();
 
   @override
   Widget build(BuildContext context) {
@@ -229,8 +232,7 @@ class NewGamePage extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () {
                     if (players.length < 4){
-                      var rng = Random();
-                      appState.addPlayer(nameController.text, rng.nextInt(100));
+                      appState.addPlayer(nameController.text, 0);
                     }
                     else{
 
@@ -271,10 +273,25 @@ class ScorePage extends StatelessWidget {
           children: [
               for (var player in players)
                 NameCardFull(player: player),
-              Row(children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                 ElevatedButton.icon(
                   icon: Icon(Icons.play_arrow), 
                   onPressed: () {
+                    appState.gamestate.scoreSort();
+                    appState.sortPlayers();
+                  },
+                  label: Text(''),
+                ),
+                SizedBox(width:10),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.add), 
+                  onPressed: () {
+                    var rng = Random();
+                    for (var player in players){
+                      player.addScore(rng.nextInt(10));
+                    }                    
                     appState.sortPlayers();
                   },
                   label: Text(''),
