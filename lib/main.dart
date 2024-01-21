@@ -29,13 +29,11 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var players = <Player>[];
   var gamestate = Gamestate();
 
   // adds a player to the game
-  void addPlayer(String name, int score) {
-    gamestate.addPlayer();
-    players.add(Player(name, score, gamestate.playerCount));
+  void addPlayer(String name) {
+    gamestate.addPlayer(name);
     notifyListeners();
   }
 
@@ -44,13 +42,13 @@ class MyAppState extends ChangeNotifier {
     switch (gamestate.scoreType()) {
       // sorts by the lowest score first
       case "ascending":
-        players.sort((a, b) => a.score.compareTo(b.score));
+        gamestate.players.sort((a, b) => a.score.compareTo(b.score));
       // sorts by th highest score first
       case "decending":
-        players.sort((a, b) => b.score.compareTo(a.score));
+        gamestate.players.sort((a, b) => b.score.compareTo(a.score));
       // sorts by the players index (made when the player is added)
       default:
-        players.sort((a, b) => a.index.compareTo(b.index));
+        gamestate.players.sort((a, b) => a.index.compareTo(b.index));
     }
     notifyListeners();
   }
@@ -94,8 +92,8 @@ class Gamestate extends ChangeNotifier {
     Icons.keyboard_double_arrow_up,
     Icons.keyboard_double_arrow_down
   ];
-  var playerCount = 0;
   var startingScore = 0;
+  var players = <Player>[];
 
   Gamestate();
 
@@ -117,14 +115,13 @@ class Gamestate extends ChangeNotifier {
     return sortIcons[scoreSortType];
   }
 
-  // adds a player to the player count
-  void addPlayer() {
-    playerCount++;
+  // adds a player to the player list
+  void addPlayer(name) {
+    players.add(Player(name, startingScore, players.length));
   }
 
-  // removes a play form the player count
-  void removePlayer() {
-    playerCount--;
+  // removes a play form the player list
+  void removePlayer(index) {
   }
 
   // Updates the starting score
@@ -198,7 +195,8 @@ class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var players = appState.players;
+    var gamestate = appState.gamestate;
+    var players = gamestate.players;
     var theme = Theme.of(context);
 
     // Texbox for naming a player
@@ -229,7 +227,7 @@ class NewGamePage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   if (players.length < 6) {
-                    appState.addPlayer(nameController.text, 0);
+                    appState.addPlayer(nameController.text);
                   } else {}
                 },
                 icon: Icon(Icons.add),
@@ -257,7 +255,8 @@ class ScorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var players = appState.players;
+    var gamestate = appState.gamestate;
+    var players = gamestate.players;
     var theme = Theme.of(context);
 
     return Center(
@@ -355,7 +354,7 @@ class NameCardFull extends StatelessWidget {
 
     var style = theme.textTheme.displayMedium!.copyWith(
       // change the font size based on how many cards we have, making them smaller as we have more
-      fontSize: gamestate.playerCount > 4 ? 40 : 50,
+      fontSize: gamestate.players.length > 4 ? 40 : 50,
       color: theme.colorScheme.onPrimary,
     );
 
@@ -364,7 +363,7 @@ class NameCardFull extends StatelessWidget {
         child: ConstrainedBox(
             constraints: BoxConstraints(
               // makes the size of the box smaller based on the number of players to fit them all in the space nicely
-              maxHeight: gamestate.playerCount > 4
+              maxHeight: gamestate.players.length > 4
                   ? MediaQuery.of(context).size.height * 0.6 * .15
                   : MediaQuery.of(context).size.height * 0.6 * .2,
             ),
