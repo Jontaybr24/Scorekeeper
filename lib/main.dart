@@ -32,20 +32,25 @@ class MyAppState extends ChangeNotifier {
   var players = <Player>[];
   var gamestate = Gamestate();
 
-
+  // adds a player to the game
   void addPlayer(String name, int score) {
     gamestate.addPlayer();
     players.add(Player(name, score, gamestate.playerCount));
     notifyListeners();
   }
 
+
+  // different sorting methods for displaying the players
   void sortPlayers() {
     switch (gamestate.scoreType())
     {
+      // sorts by the lowest score first
       case "ascending":
         players.sort((a, b) => a.score.compareTo(b.score));
+      // sorts by th highest score first
       case "decending":
         players.sort((a, b) => b.score.compareTo(a.score));
+      // sorts by the players index (made when the player is added)
       default:
         players.sort((a, b) => a.index.compareTo(b.index));
     }
@@ -53,6 +58,12 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
+
+/* 
+** Player Class
+** Keeps track of name and score
+** eventually want to add customizable settings for each player, like card colors
+*/ 
 class Player extends ChangeNotifier {
   var name = "";
   var score = 0;
@@ -60,10 +71,12 @@ class Player extends ChangeNotifier {
 
   Player(this.name, this.score, this.index);
 
+  // changes the name of the player
   void changeName(String newName) {
     name = newName;
   }
 
+  // adds to the players score
   void addScore(int points){
     score += points;
     notifyListeners();
@@ -71,6 +84,12 @@ class Player extends ChangeNotifier {
 
 }
 
+/*
+** Gamestate class
+** Keeps track of all important data for the game. 
+** Need to be able to save the gamestate after closing app
+** need to move player list into the gamestate
+*/
 class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "decending", "ascending"];
@@ -80,6 +99,7 @@ class Gamestate extends ChangeNotifier {
 
   Gamestate();
 
+  // cycles the score sorting type
   void scoreSort(){
     scoreSortType += 1;
     if (scoreSortType >= sortTypes.length){
@@ -87,22 +107,27 @@ class Gamestate extends ChangeNotifier {
     }
   }
 
+  // returns the score sorting type
   String scoreType(){
     return sortTypes[scoreSortType];
   }
 
+  // returns the icon associated with the sorting type
   IconData scoreTypeIcon(){
     return sortIcons[scoreSortType];
   }
 
+  // adds a player to the player count
   void addPlayer(){
     playerCount++;
   }
 
+  // removes a play form the player count
   void removePlayer(){
     playerCount--;
   }
 
+  // Updates the starting score
   void updateBaseScore(var score){
     startingScore = score;
   }
@@ -131,7 +156,8 @@ class _MyHomePageState extends State<MyHomePage>{
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-
+    // navigation menu for moving to different pages.
+    // eventually needs to be condensed into 2 pages.
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -170,6 +196,7 @@ class _MyHomePageState extends State<MyHomePage>{
   }
 }
 
+// A temperary page for making a new game. Eventually needs to be merged with the score page
 class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -221,6 +248,11 @@ class NewGamePage extends StatelessWidget {
   }
 }
 
+
+/*
+** The Main page of the app once a game has been started
+** Keeps score for all the players in the game
+*/
 class ScorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -234,6 +266,7 @@ class ScorePage extends StatelessWidget {
           children: [
               ConstrainedBox(
                 constraints: BoxConstraints(
+                  // scaling for the score cards
                   minHeight: MediaQuery.of(context).size.height * 0.6,
                   maxHeight: MediaQuery.of(context).size.height * 0.6,
                   minWidth: MediaQuery.of(context).size.width * 0.85,
@@ -246,25 +279,29 @@ class ScorePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                IconButton(
-                  icon: Icon(appState.gamestate.scoreTypeIcon()), 
-                  color: theme.primaryColor,
-                  onPressed: () {
-                    appState.gamestate.scoreSort();
-                    appState.sortPlayers();
-                  },
-                ),
-                SizedBox(width:15),
-                IconButton(
-                  icon: Icon(Icons.add), 
-                  color: theme.primaryColor,
-                  onPressed: () {
-                    var rng = Random();
-                    for (var player in players){
-                      player.addScore(rng.nextInt(10));
-                    }                    
-                    appState.sortPlayers();
-                  },
+                  // A button for changing how the scores are sorted. The Icon is updated accordingly
+                  IconButton(
+                    icon: Icon(appState.gamestate.scoreTypeIcon()), 
+                    color: theme.primaryColor,
+                    onPressed: () {
+                      appState.gamestate.scoreSort();
+                      appState.sortPlayers();
+                    },
+                  ),
+                  SizedBox(width:15),
+
+                  // A button for adding score to each player
+                  // For now just adds random score -- Need to add input from user
+                  IconButton(
+                    icon: Icon(Icons.add), 
+                    color: theme.primaryColor,
+                    onPressed: () {
+                      var rng = Random();
+                      for (var player in players){
+                        player.addScore(rng.nextInt(10));
+                      }                    
+                      appState.sortPlayers();
+                    },
                   ),
               ],
             )
@@ -274,6 +311,11 @@ class ScorePage extends StatelessWidget {
   }
 }
 
+/*
+** Settings page
+** A place to change things like player count, sort type, have rounds and winning scores
+** still needs to be implemented
+*/
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -290,6 +332,8 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
+
+// A widget for displaying a players name and score
 class NameCardFull extends StatelessWidget {
   const NameCardFull({
     super.key,
@@ -305,6 +349,7 @@ class NameCardFull extends StatelessWidget {
     var theme = Theme.of(context);
 
     var style = theme.textTheme.displayMedium!.copyWith(
+      // change the font size based on how many cards we have, making them smaller as we have more
       fontSize: gamestate.playerCount > 4 ? 40 : 50,
       color: theme.colorScheme.onPrimary,
     );
@@ -313,6 +358,7 @@ class NameCardFull extends StatelessWidget {
       color: theme.colorScheme.primary,
       child: ConstrainedBox(
         constraints: BoxConstraints(
+          // makes the size of the box smaller based on the number of players to fit them all in the space nicely
           maxHeight: gamestate.playerCount > 4 ? MediaQuery.of(context).size.height * 0.6 * .15 : MediaQuery.of(context).size.height * 0.6 * .2,
         ),
           child: Padding(
@@ -347,7 +393,7 @@ class NameCardFull extends StatelessWidget {
   }
 }
 
-
+// A smaller version of the above. Still need to make adjustments so we can display cards side by side
 class NameCardSmall extends StatelessWidget {
   const NameCardSmall({
     super.key,
