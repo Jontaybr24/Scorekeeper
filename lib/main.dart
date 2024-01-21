@@ -148,14 +148,9 @@ class _MyHomePageState extends State<MyHomePage>{
     switch (selectedIndex) {
       case 0:
         page = NewGamePage();
-        break;
       case 1:
         page = ScorePage();
-        break;
       case 2:
-        page = FavoritesPage();
-        break;
-      case 3:
         page = SettingsPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -179,10 +174,6 @@ class _MyHomePageState extends State<MyHomePage>{
           NavigationDestination(
             icon: Icon(Icons.festival),
             label: 'Scores',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite),
-            label: 'Likes',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings),
@@ -349,38 +340,6 @@ class SettingsPage extends StatelessWidget {
             ),
           ],
         ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget{
-  @override
-  Widget build(BuildContext context){
-    var appState = context.watch<MyAppState>();
-    var pairs = appState.favorites;
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-        children: [
-          Padding(padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-          ),
-          for (var fav in pairs)
-            ListTile(
-              leading: Icon(Icons.favorite),
-              title: Text(fav.asPascalCase),
-              onLongPress: () {
-                //Vibration.vibrate();
-                appState.removeFavorite(fav);
-              },
-              ),
-        ],
     );
   }
 }
