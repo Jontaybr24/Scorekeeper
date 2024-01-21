@@ -98,8 +98,8 @@ class Player extends ChangeNotifier {
 
 class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
-  var sortTypes = ["default", "ascending", "decending"];
-  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_down, Icons.keyboard_double_arrow_up];
+  var sortTypes = ["default", "decending", "ascending"];
+  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_up, Icons.keyboard_double_arrow_down];
   var playerCount = 0;
   var startingScore = 0;
 
