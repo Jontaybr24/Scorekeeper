@@ -238,8 +238,21 @@ class NewGamePage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   if (players.length < 6) {
-                    appState.addPlayer(nameController.text);
-                  } else {}
+                    if (nameController.text != "") {
+                      appState.addPlayer(nameController.text);
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              _warningPopupDialog(
+                                  context, "Please Enter a Valid Name"));
+                    }
+                  } else {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) => _warningPopupDialog(
+                            context, "Player Limit Reached"));
+                  }
                 },
                 icon: Icon(Icons.add),
                 label: Text("New Player"),
@@ -321,6 +334,7 @@ class ScorePage extends StatelessWidget {
                     );
                   }
                   gamestate.sortPlayers();
+                  appState.update();
                 },
               ),
             ],
@@ -381,10 +395,10 @@ Widget _scorePopupDialog(BuildContext context, Player player) {
               Navigator.of(context).pop();
             } catch (e) {
               showDialog(
-                      context: context,
-                      builder: (BuildContext context) =>
-                          _warningPopupDialog(context, "Please Enter a Valid Number"),
-                    );
+                context: context,
+                builder: (BuildContext context) =>
+                    _warningPopupDialog(context, "Please Enter a Valid Number"),
+              );
             }
           },
         ),
@@ -392,7 +406,6 @@ Widget _scorePopupDialog(BuildContext context, Player player) {
     ),
   );
 }
-
 
 // a widget to notify the use when there is an error
 Widget _warningPopupDialog(BuildContext context, String message) {
