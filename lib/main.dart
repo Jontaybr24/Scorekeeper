@@ -1,4 +1,3 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -30,29 +29,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-
-  void removeFavorite(WordPair pair) {
-    favorites.remove(pair);
-    notifyListeners();
-  }
-
   var players = <Player>[];
   var gamestate = Gamestate();
 
@@ -68,10 +44,8 @@ class MyAppState extends ChangeNotifier {
     {
       case "ascending":
         players.sort((a, b) => a.score.compareTo(b.score));
-        break;
       case "decending":
         players.sort((a, b) => b.score.compareTo(a.score));
-        break;
       default:
         players.sort((a, b) => a.index.compareTo(b.index));
     }
@@ -200,13 +174,8 @@ class NewGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
     var players = appState.players;
     var theme = Theme.of(context);
-
-    if(appState.favorites.contains(pair)){
-    } else{
-    }
 
     // Texbox for naming a player
     var nameController = TextEditingController();
@@ -256,13 +225,8 @@ class ScorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
     var players = appState.players;
     var theme = Theme.of(context);
-
-    if(appState.favorites.contains(pair)){
-    } else{
-    }
 
     return Center(
         child: Column(
@@ -314,75 +278,17 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if(appState.favorites.contains(pair)){
-      icon = Icons.favorite;
-    } else{
-      icon = Icons.favorite_border;
-    }
 
     return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BigCard(pair: pair),
             SizedBox(height: 10,),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFavorite();
-                  },
-                  icon: Icon(icon),
-                  label: Text(""),
-                ),
-                SizedBox(width:10),
-                ElevatedButton(
-                  onPressed: () {
-                    appState.getNext();
-                  },
-                  child: Text('Next'),
-                ),
-              ],
-            ),
-          ],
-        ),
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(
-          pair.asPascalCase, 
-          style: style,
-          semanticsLabel: pair.asPascalCase,
-          ),
+        ],
       ),
     );
   }
 }
-
 
 class NameCardFull extends StatelessWidget {
   const NameCardFull({
