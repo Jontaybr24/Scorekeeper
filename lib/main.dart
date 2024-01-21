@@ -38,23 +38,7 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // different sorting methods for displaying the players
-  void sortPlayers() {
-    switch (gamestate.scoreType()) {
-      // sorts by the lowest score first
-      case "ascending":
-        gamestate.players.sort((a, b) => a.score.compareTo(b.score));
-      // sorts by th highest score first
-      case "decending":
-        gamestate.players.sort((a, b) => b.score.compareTo(a.score));
-      // sorts by the players index (made when the player is added)
-      default:
-        gamestate.players.sort((a, b) => a.index.compareTo(b.index));
-    }
-    notifyListeners();
-  }
-
-  void update(){
+  void update() {
     notifyListeners();
   }
 }
@@ -131,6 +115,22 @@ class GameState extends ChangeNotifier {
   // Updates the starting score
   void updateBaseScore(var score) {
     startingScore = score;
+  }
+
+  // different sorting methods for displaying the players
+  void sortPlayers() {
+    switch (scoreType()) {
+      // sorts by the lowest score first
+      case "ascending":
+        players.sort((a, b) => a.score.compareTo(b.score));
+      // sorts by th highest score first
+      case "decending":
+        players.sort((a, b) => b.score.compareTo(a.score));
+      // sorts by the players index (made when the player is added)
+      default:
+        players.sort((a, b) => a.index.compareTo(b.index));
+    }
+    notifyListeners();
   }
 
   void newGame() {
@@ -300,8 +300,9 @@ class ScorePage extends StatelessWidget {
                 icon: Icon(appState.gamestate.scoreTypeIcon()),
                 color: theme.primaryColor,
                 onPressed: () {
-                  appState.gamestate.scoreSort();
-                  appState.sortPlayers();
+                  gamestate.scoreSort();
+                  gamestate.sortPlayers();
+                  appState.update();
                 },
               ),
               SizedBox(width: 15),
@@ -316,10 +317,10 @@ class ScorePage extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) =>
-                          _buildPopupDialog(context, player),
+                          _scorePopupDialog(context, player),
                     );
                   }
-                  appState.sortPlayers();
+                  gamestate.sortPlayers();
                 },
               ),
             ],
@@ -354,7 +355,7 @@ class SettingsPage extends StatelessWidget {
 }
 
 // A pop up for adding points to each players score
-Widget _buildPopupDialog(BuildContext context, Player player) {
+Widget _scorePopupDialog(BuildContext context, Player player) {
   var scoreInput = TextEditingController();
   var appState = context.watch<MyAppState>();
 
@@ -374,13 +375,49 @@ Widget _buildPopupDialog(BuildContext context, Player player) {
           textAlign: TextAlign.center,
           //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onEditingComplete: () {
-            player.addScore(int.parse(scoreInput.text));
-            appState.update();
-            Navigator.of(context).pop();
+            try {
+              player.addScore(int.parse(scoreInput.text));
+              appState.update();
+              Navigator.of(context).pop();
+            } catch (e) {
+              showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          _warningPopupDialog(context, "Please Enter a Valid Number"),
+                    );
+            }
           },
         ),
       ],
     ),
+  );
+}
+
+
+// a widget to notify the use when there is an error
+Widget _warningPopupDialog(BuildContext context, String message) {
+  return AlertDialog(
+    title: Text(
+      "Error",
+      textAlign: TextAlign.center,
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ),
+    actions: [
+      BackButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      )
+    ],
   );
 }
 
