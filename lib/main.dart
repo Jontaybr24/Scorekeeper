@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 //import 'package:vibration/vibration.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var gamestate = Gamestate();
+  var gamestate = GameState();
 
   // adds a player to the game
   void addPlayer(String name) {
@@ -50,6 +51,10 @@ class MyAppState extends ChangeNotifier {
       default:
         gamestate.players.sort((a, b) => a.index.compareTo(b.index));
     }
+    notifyListeners();
+  }
+
+  void update(){
     notifyListeners();
   }
 }
@@ -84,7 +89,7 @@ class Player extends ChangeNotifier {
 ** Need to be able to save the gamestate after closing app
 ** need to move player list into the gamestate
 */
-class Gamestate extends ChangeNotifier {
+class GameState extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "decending", "ascending"];
   var sortIcons = [
@@ -95,7 +100,7 @@ class Gamestate extends ChangeNotifier {
   var startingScore = 0;
   var players = <Player>[];
 
-  Gamestate();
+  GameState();
 
   // cycles the score sorting type
   void scoreSort() {
@@ -121,16 +126,15 @@ class Gamestate extends ChangeNotifier {
   }
 
   // removes a play form the player list
-  void removePlayer(index) {
-  }
+  void removePlayer(index) {}
 
   // Updates the starting score
   void updateBaseScore(var score) {
     startingScore = score;
   }
 
-  void newGame(){
-    for (var player in players){
+  void newGame() {
+    for (var player in players) {
       player.score = startingScore;
     }
   }
@@ -226,6 +230,7 @@ class NewGamePage extends StatelessWidget {
           ),
           TextField(
             controller: nameController,
+            keyboardType: TextInputType.name,
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -307,9 +312,12 @@ class ScorePage extends StatelessWidget {
                 icon: Icon(Icons.add),
                 color: theme.primaryColor,
                 onPressed: () {
-                  var rng = Random();
                   for (var player in players) {
-                    player.addScore(rng.nextInt(10));
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          _buildPopupDialog(context, player),
+                    );
                   }
                   appState.sortPlayers();
                 },
@@ -345,6 +353,37 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
+// A pop up for adding points to each players score
+Widget _buildPopupDialog(BuildContext context, Player player) {
+  var scoreInput = TextEditingController();
+  var appState = context.watch<MyAppState>();
+
+  return AlertDialog(
+    title: Text(
+      player.name,
+      textAlign: TextAlign.center,
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        TextField(
+          controller: scoreInput,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          textAlign: TextAlign.center,
+          //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onEditingComplete: () {
+            player.addScore(int.parse(scoreInput.text));
+            appState.update();
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 // A widget for displaying a players name and score
 class NameCardFull extends StatelessWidget {
   const NameCardFull({
@@ -354,7 +393,7 @@ class NameCardFull extends StatelessWidget {
   });
 
   final Player player;
-  final Gamestate gamestate;
+  final GameState gamestate;
 
   @override
   Widget build(BuildContext context) {
