@@ -128,6 +128,12 @@ class Gamestate extends ChangeNotifier {
   void updateBaseScore(var score) {
     startingScore = score;
   }
+
+  void newGame(){
+    for (var player in players){
+      player.score = startingScore;
+    }
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -236,7 +242,9 @@ class NewGamePage extends StatelessWidget {
               SizedBox(width: 10),
               IconButton(
                 color: theme.primaryColor,
-                onPressed: () {},
+                onPressed: () {
+                  gamestate.newGame();
+                },
                 icon: Icon(Icons.play_arrow),
               ),
             ],
