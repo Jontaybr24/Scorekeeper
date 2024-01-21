@@ -99,7 +99,7 @@ class Player extends ChangeNotifier {
 class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "ascending", "decending"];
-  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_up, Icons.keyboard_double_arrow_down];
+  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_down, Icons.keyboard_double_arrow_up];
   var playerCount = 0;
   var startingScore = 0;
 
@@ -212,6 +212,7 @@ class NewGamePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
     var players = appState.players;
+    var theme = Theme.of(context);
 
     if(appState.favorites.contains(pair)){
     } else{
@@ -247,11 +248,11 @@ class NewGamePage extends StatelessWidget {
                   label: Text("New Player"),
                 ),
                 SizedBox(width:10),
-                ElevatedButton.icon(
+                IconButton(
+                  color: theme.primaryColor,
                   onPressed: () {
                   },
                   icon: Icon(Icons.play_arrow),
-                  label: Text(''),
                 ),
               ],
             ),
@@ -267,6 +268,7 @@ class ScorePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
     var players = appState.players;
+    var theme = Theme.of(context);
 
     if(appState.favorites.contains(pair)){
     } else{
@@ -281,17 +283,18 @@ class ScorePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                ElevatedButton.icon(
+                IconButton(
                   icon: Icon(appState.gamestate.scoreTypeIcon()), 
+                  color: theme.primaryColor,
                   onPressed: () {
                     appState.gamestate.scoreSort();
                     appState.sortPlayers();
                   },
-                  label: Text(''),
                 ),
-                SizedBox(width:10),
-                ElevatedButton.icon(
+                SizedBox(width:15),
+                IconButton(
                   icon: Icon(Icons.add), 
+                  color: theme.primaryColor,
                   onPressed: () {
                     var rng = Random();
                     for (var player in players){
@@ -299,8 +302,7 @@ class ScorePage extends StatelessWidget {
                     }                    
                     appState.sortPlayers();
                   },
-                  label: Text(''),
-                ) 
+                  ),
               ],
             )
           ],
