@@ -17,10 +17,11 @@ class MyApp extends StatelessWidget {
       create: (context) => MyAppState(),
       child: MaterialApp(
         title: 'Namer App',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          platform: TargetPlatform.iOS,
+          platform: TargetPlatform.android,
         ),
         home: MyHomePage(),
       ),
@@ -226,7 +227,7 @@ class NewGamePage extends StatelessWidget {
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
-                    if (players.length < 4){
+                    if (players.length < 6){
                       appState.addPlayer(nameController.text, 0);
                     }
                     else{
@@ -267,8 +268,17 @@ class ScorePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.6,
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  minWidth: MediaQuery.of(context).size.width * 0.85,
+                  maxWidth: MediaQuery.of(context).size.width * 0.85,
+                  ),
+                child: Column(children: [
               for (var player in players)
-                NameCardFull(player: player),
+                NameCardFull(player: player, gamestate: appState.gamestate,),]),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -378,47 +388,54 @@ class NameCardFull extends StatelessWidget {
   const NameCardFull({
     super.key,
     required this.player,
+    required this.gamestate,
     });
 
   final Player player;
+  final Gamestate gamestate;
 
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
+
     var style = theme.textTheme.displayMedium!.copyWith(
+      fontSize: gamestate.playerCount > 4 ? 40 : 50,
       color: theme.colorScheme.onPrimary,
     );
 
     return Card(
       color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Row(children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: 200,
-                maxWidth: 200,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: gamestate.playerCount > 4 ? MediaQuery.of(context).size.height * 0.6 * .15 : MediaQuery.of(context).size.height * 0.6 * .2,
+        ),
+          child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 200,
+                  maxWidth: 200,
+                ),
+                child: Text(
+                  player.name, 
+                  style: style,
+                  semanticsLabel: player.name,
+                ),
               ),
-              child: Text(
-                player.name, 
-                style: style,
-                semanticsLabel: player.name,
+              Padding(
+                padding: const EdgeInsets.all(10.0),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Container(
+              Align(
+                alignment: Alignment.topLeft,
                 child: Text(
                   "${player.score}",
                   style: style
                 )
               )
-            )
-          ],
-        ),
+            ],
+          ),
+        )
       )
     );
   }
