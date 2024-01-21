@@ -99,6 +99,7 @@ class Player extends ChangeNotifier {
 class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "ascending", "decending"];
+  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_up, Icons.keyboard_double_arrow_down];
   var playerCount = 0;
   var startingScore = 0;
 
@@ -113,6 +114,10 @@ class Gamestate extends ChangeNotifier {
 
   String scoreType(){
     return sortTypes[scoreSortType];
+  }
+
+  IconData scoreTypeIcon(){
+    return sortIcons[scoreSortType];
   }
 
   void addPlayer(){
@@ -277,7 +282,7 @@ class ScorePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                 ElevatedButton.icon(
-                  icon: Icon(Icons.play_arrow), 
+                  icon: Icon(appState.gamestate.scoreTypeIcon()), 
                   onPressed: () {
                     appState.gamestate.scoreSort();
                     appState.sortPlayers();
