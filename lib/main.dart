@@ -39,11 +39,9 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   // different sorting methods for displaying the players
   void sortPlayers() {
-    switch (gamestate.scoreType())
-    {
+    switch (gamestate.scoreType()) {
       // sorts by the lowest score first
       case "ascending":
         players.sort((a, b) => a.score.compareTo(b.score));
@@ -58,12 +56,11 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-
 /* 
 ** Player Class
 ** Keeps track of name and score
 ** eventually want to add customizable settings for each player, like card colors
-*/ 
+*/
 class Player extends ChangeNotifier {
   var name = "";
   var score = 0;
@@ -77,11 +74,10 @@ class Player extends ChangeNotifier {
   }
 
   // adds to the players score
-  void addScore(int points){
+  void addScore(int points) {
     score += points;
     notifyListeners();
   }
-
 }
 
 /*
@@ -93,53 +89,56 @@ class Player extends ChangeNotifier {
 class Gamestate extends ChangeNotifier {
   var scoreSortType = 0;
   var sortTypes = ["default", "decending", "ascending"];
-  var sortIcons = [Icons.sort_sharp, Icons.keyboard_double_arrow_up, Icons.keyboard_double_arrow_down];
+  var sortIcons = [
+    Icons.sort_sharp,
+    Icons.keyboard_double_arrow_up,
+    Icons.keyboard_double_arrow_down
+  ];
   var playerCount = 0;
   var startingScore = 0;
 
   Gamestate();
 
   // cycles the score sorting type
-  void scoreSort(){
+  void scoreSort() {
     scoreSortType += 1;
-    if (scoreSortType >= sortTypes.length){
+    if (scoreSortType >= sortTypes.length) {
       scoreSortType = 0;
     }
   }
 
   // returns the score sorting type
-  String scoreType(){
+  String scoreType() {
     return sortTypes[scoreSortType];
   }
 
   // returns the icon associated with the sorting type
-  IconData scoreTypeIcon(){
+  IconData scoreTypeIcon() {
     return sortIcons[scoreSortType];
   }
 
   // adds a player to the player count
-  void addPlayer(){
+  void addPlayer() {
     playerCount++;
   }
 
   // removes a play form the player count
-  void removePlayer(){
+  void removePlayer() {
     playerCount--;
   }
 
   // Updates the starting score
-  void updateBaseScore(var score){
+  void updateBaseScore(var score) {
     startingScore = score;
   }
 }
-
 
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>{
+class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
 
   @override
@@ -159,40 +158,38 @@ class _MyHomePageState extends State<MyHomePage>{
     // navigation menu for moving to different pages.
     // eventually needs to be condensed into 2 pages.
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-        indicatorColor: Theme.of(context).colorScheme.onPrimary,
-        selectedIndex: selectedIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_rounded),
-            label: 'New Game',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.festival),
-            label: 'Scores',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ]
-      ),
-      body: 
-        Row(
+        bottomNavigationBar: NavigationBar(
+            onDestinationSelected: (int index) {
+              setState(() {
+                selectedIndex = index;
+              });
+            },
+            indicatorColor: Theme.of(context).colorScheme.onPrimary,
+            selectedIndex: selectedIndex,
+            destinations: const <Widget>[
+              NavigationDestination(
+                icon: Icon(Icons.add_circle_rounded),
+                label: 'New Game',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.festival),
+                label: 'Scores',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+              ),
+            ]),
+        body: Row(
           children: [
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: page,
+              ),
             ),
-          ),
-        ],)
-    );
+          ],
+        ));
   }
 }
 
@@ -207,47 +204,50 @@ class NewGamePage extends StatelessWidget {
     // Texbox for naming a player
     var nameController = TextEditingController();
 
-
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-              for (var player in players)
-                NameCardSmall(player: player),
-            SizedBox(height: 10,),
-            TextField(
-              controller: nameController,
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    if (players.length < 6){
-                      appState.addPlayer(nameController.text, 0);
-                    }
-                    else{
-
-                    }
-                  },
-                  icon: Icon(Icons.add),
-                  label: Text("New Player"),
-                ),
-                SizedBox(width:10),
-                IconButton(
-                  color: theme.primaryColor,
-                  onPressed: () {
-                  },
-                  icon: Icon(Icons.play_arrow),
-                ),
-              ],
-            ),
-          ],
-        ),
-    );
+        child: ConstrainedBox(
+      constraints: BoxConstraints(
+        // scaling for the score cards
+        minHeight: MediaQuery.of(context).size.height * 0.6,
+        maxHeight: MediaQuery.of(context).size.height * 0.6,
+        minWidth: MediaQuery.of(context).size.width * 0.85,
+        maxWidth: MediaQuery.of(context).size.width * 0.85,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var player in players) NameCardSmall(player: player),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            controller: nameController,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (players.length < 6) {
+                    appState.addPlayer(nameController.text, 0);
+                  } else {}
+                },
+                icon: Icon(Icons.add),
+                label: Text("New Player"),
+              ),
+              SizedBox(width: 10),
+              IconButton(
+                color: theme.primaryColor,
+                onPressed: () {},
+                icon: Icon(Icons.play_arrow),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ));
   }
 }
-
 
 /*
 ** The Main page of the app once a game has been started
@@ -261,52 +261,56 @@ class ScorePage extends StatelessWidget {
     var theme = Theme.of(context);
 
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  // scaling for the score cards
-                  minHeight: MediaQuery.of(context).size.height * 0.6,
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  minWidth: MediaQuery.of(context).size.width * 0.85,
-                  maxWidth: MediaQuery.of(context).size.width * 0.85,
-                  ),
-                child: Column(children: [
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              // scaling for the score cards
+              minHeight: MediaQuery.of(context).size.height * 0.6,
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+              minWidth: MediaQuery.of(context).size.width * 0.85,
+              maxWidth: MediaQuery.of(context).size.width * 0.85,
+            ),
+            child: Column(children: [
               for (var player in players)
-                NameCardFull(player: player, gamestate: appState.gamestate,),]),
+                NameCardFull(
+                  player: player,
+                  gamestate: appState.gamestate,
+                ),
+            ]),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // A button for changing how the scores are sorted. The Icon is updated accordingly
+              IconButton(
+                icon: Icon(appState.gamestate.scoreTypeIcon()),
+                color: theme.primaryColor,
+                onPressed: () {
+                  appState.gamestate.scoreSort();
+                  appState.sortPlayers();
+                },
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // A button for changing how the scores are sorted. The Icon is updated accordingly
-                  IconButton(
-                    icon: Icon(appState.gamestate.scoreTypeIcon()), 
-                    color: theme.primaryColor,
-                    onPressed: () {
-                      appState.gamestate.scoreSort();
-                      appState.sortPlayers();
-                    },
-                  ),
-                  SizedBox(width:15),
+              SizedBox(width: 15),
 
-                  // A button for adding score to each player
-                  // For now just adds random score -- Need to add input from user
-                  IconButton(
-                    icon: Icon(Icons.add), 
-                    color: theme.primaryColor,
-                    onPressed: () {
-                      var rng = Random();
-                      for (var player in players){
-                        player.addScore(rng.nextInt(10));
-                      }                    
-                      appState.sortPlayers();
-                    },
-                  ),
-              ],
-            )
-          ],
-        ),
+              // A button for adding score to each player
+              // For now just adds random score -- Need to add input from user
+              IconButton(
+                icon: Icon(Icons.add),
+                color: theme.primaryColor,
+                onPressed: () {
+                  var rng = Random();
+                  for (var player in players) {
+                    player.addScore(rng.nextInt(10));
+                  }
+                  appState.sortPlayers();
+                },
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -322,16 +326,17 @@ class SettingsPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
 
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 10,),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 10,
+          ),
         ],
       ),
     );
   }
 }
-
 
 // A widget for displaying a players name and score
 class NameCardFull extends StatelessWidget {
@@ -339,7 +344,7 @@ class NameCardFull extends StatelessWidget {
     super.key,
     required this.player,
     required this.gamestate,
-    });
+  });
 
   final Player player;
   final Gamestate gamestate;
@@ -355,41 +360,38 @@ class NameCardFull extends StatelessWidget {
     );
 
     return Card(
-      color: theme.colorScheme.primary,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          // makes the size of the box smaller based on the number of players to fit them all in the space nicely
-          maxHeight: gamestate.playerCount > 4 ? MediaQuery.of(context).size.height * 0.6 * .15 : MediaQuery.of(context).size.height * 0.6 * .2,
-        ),
-          child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: 200,
-                  maxWidth: 200,
-                ),
-                child: Text(
-                  player.name, 
-                  style: style,
-                  semanticsLabel: player.name,
-                ),
+        color: theme.colorScheme.primary,
+        child: ConstrainedBox(
+            constraints: BoxConstraints(
+              // makes the size of the box smaller based on the number of players to fit them all in the space nicely
+              maxHeight: gamestate.playerCount > 4
+                  ? MediaQuery.of(context).size.height * 0.6 * .15
+                  : MediaQuery.of(context).size.height * 0.6 * .2,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: 200,
+                      maxWidth: 200,
+                    ),
+                    child: Text(
+                      player.name,
+                      style: style,
+                      semanticsLabel: player.name,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                  ),
+                  Align(
+                      alignment: Alignment.topLeft,
+                      child: Text("${player.score}", style: style))
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "${player.score}",
-                  style: style
-                )
-              )
-            ],
-          ),
-        )
-      )
-    );
+            )));
   }
 }
 
@@ -398,7 +400,7 @@ class NameCardSmall extends StatelessWidget {
   const NameCardSmall({
     super.key,
     required this.player,
-    });
+  });
 
   final Player player;
 
@@ -414,7 +416,7 @@ class NameCardSmall extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Text(
-          player.name, 
+          player.name,
           style: style,
           semanticsLabel: player.name,
         ),
