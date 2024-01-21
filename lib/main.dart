@@ -163,45 +163,43 @@ class _MyHomePageState extends State<MyHomePage>{
 
 
     return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              extended: false,
-              destinations: [
-                NavigationRailDestination(
-                  icon: Icon(Icons.add_circle_rounded),
-                  label: Text('New Game'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.festival),
-                  label: Text('Scores'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.favorite),
-                  label: Text('Likes'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.settings),
-                  label: Text('Settings'),
-                ),
-              ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;                  
-                });
-              },
-            ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        indicatorColor: Theme.of(context).colorScheme.onPrimary,
+        selectedIndex: selectedIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_rounded),
+            label: 'New Game',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.festival),
+            label: 'Scores',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite),
+            label: 'Likes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ]
+      ),
+      body: 
+        Row(
+          children: [
           Expanded(
             child: Container(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: page,
             ),
           ),
-        ],
-      ),
+        ],)
     );
   }
 }
