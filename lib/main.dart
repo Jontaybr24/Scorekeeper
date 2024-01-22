@@ -391,6 +391,7 @@ Widget _scorePopupDialog(BuildContext context, Player player) {
           onEditingComplete: () {
             try {
               player.addScore(int.parse(scoreInput.text));
+              appState.gamestate.sortPlayers();
               appState.update();
               Navigator.of(context).pop();
             } catch (e) {
@@ -470,8 +471,8 @@ class NameCardFull extends StatelessWidget {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: 200,
-                      maxWidth: 200,
+                      minWidth: 180,
+                      maxWidth: 180,
                     ),
                     child: Text(
                       player.name,
