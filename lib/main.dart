@@ -224,7 +224,7 @@ class NewGamePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          for (var player in players) NameCardSmall(player: player),
+          //for (var player in players) NameCardSmall(player: player),
           SizedBox(
             height: 10,
           ),
@@ -237,7 +237,7 @@ class NewGamePage extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  if (players.length < 6) {
+                  if (players.length < 12) {
                     if (nameController.text != "") {
                       appState.addPlayer(nameController.text);
                     } else {
@@ -284,6 +284,7 @@ class ScorePage extends StatelessWidget {
     var gamestate = appState.gamestate;
     var players = gamestate.players;
     var theme = Theme.of(context);
+    var size = MediaQuery.of(context).size;
 
     return Center(
       child: Column(
@@ -292,18 +293,26 @@ class ScorePage extends StatelessWidget {
           ConstrainedBox(
             constraints: BoxConstraints(
               // scaling for the score cards
-              minHeight: MediaQuery.of(context).size.height * 0.6,
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-              minWidth: MediaQuery.of(context).size.width * 0.85,
-              maxWidth: MediaQuery.of(context).size.width * 0.85,
+              minHeight: size.height * 0.6,
+              maxHeight: size.height * 0.6,
+              minWidth: size.width * 0.85,
+              maxWidth: size.width * 0.85,
             ),
-            child: Column(children: [
-              for (var player in players)
-                NameCardFull(
-                  player: player,
-                  gamestate: appState.gamestate,
-                ),
-            ]),
+            child: GridView.count(
+                crossAxisCount: gamestate.players.length <= 6 ? 1 : 2,
+                physics: NeverScrollableScrollPhysics(),
+                childAspectRatio: gamestate.players.length <= 4
+                    ? ((size.width * 0.75) / (size.height * 0.6 * .2))
+                    : gamestate.players.length <= 6
+                        ? ((size.width * 0.85) / (size.height * 0.6 * .15))
+                        : ((size.width * 0.42) / (size.height * 0.6 * .15)),
+                children: [
+                  for (var player in players)
+                    NameCardFull(
+                      player: player,
+                      gamestate: appState.gamestate,
+                    ),
+                ]),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -449,10 +458,15 @@ class NameCardFull extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
+    var size = MediaQuery.of(context).size;
 
     var style = theme.textTheme.displayMedium!.copyWith(
       // change the font size based on how many cards we have, making them smaller as we have more
-      fontSize: gamestate.players.length > 4 ? 40 : 50,
+      fontSize: gamestate.players.length <= 4
+          ? 50
+          : gamestate.players.length <= 6
+              ? 35
+              : 20,
       color: theme.colorScheme.onPrimary,
     );
 
@@ -462,8 +476,8 @@ class NameCardFull extends StatelessWidget {
             constraints: BoxConstraints(
               // makes the size of the box smaller based on the number of players to fit them all in the space nicely
               maxHeight: gamestate.players.length > 4
-                  ? MediaQuery.of(context).size.height * 0.6 * .15
-                  : MediaQuery.of(context).size.height * 0.6 * .2,
+                  ? size.height * 0.6 * .15
+                  : size.height * 0.6 * .2,
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -471,8 +485,7 @@ class NameCardFull extends StatelessWidget {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: 180,
-                      maxWidth: 180,
+                      minWidth: gamestate.players.length <= 6 ? 180 : 80,
                     ),
                     child: Text(
                       player.name,
@@ -484,7 +497,7 @@ class NameCardFull extends StatelessWidget {
                     padding: const EdgeInsets.all(10.0),
                   ),
                   Align(
-                      alignment: Alignment.topLeft,
+                      alignment: Alignment.centerLeft,
                       child: Text("${player.score}", style: style))
                 ],
               ),
