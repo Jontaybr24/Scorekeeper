@@ -1,7 +1,5 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 //import 'package:vibration/vibration.dart';
@@ -66,15 +64,6 @@ class Player extends ChangeNotifier {
   void addScore(int points) {
     score += points;
     notifyListeners();
-  }
-
-  calcTextSize(String text, TextStyle style){
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-      textScaleFactor: WidgetsBinding.instance.window.textScaleFactor,
-    )..layout();
-    return textPainter.size;
   }
 }
 
@@ -148,6 +137,16 @@ class GameState extends ChangeNotifier {
     for (var player in players) {
       player.score = startingScore;
     }
+  }
+
+  calcTextSize(String text, TextStyle style){
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      // ignore: deprecated_member_use
+      textScaleFactor: WidgetsBinding.instance.window.textScaleFactor,
+    )..layout();
+    return textPainter.size;
   }
 }
 
@@ -373,7 +372,7 @@ class ScorePage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    //var appState = context.watch<MyAppState>();
 
     return Center(
       child: Column(
@@ -477,11 +476,11 @@ class NameCardFull extends StatelessWidget {
           ? 50
           : gamestate.players.length <= 6
               ? 35
-              : 20,
+              : 19,
       color: theme.colorScheme.onPrimary,
     );
-    var nameSize = player.calcTextSize(player.name, style);
-    player.score = nameSize.width.toInt();
+    var nameSize = gamestate.calcTextSize(player.name, style);
+    //player.score = nameSize.width.toInt();
 
     return Card(
         color: theme.colorScheme.primary,
@@ -498,7 +497,7 @@ class NameCardFull extends StatelessWidget {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      minWidth: gamestate.players.length <= 6 ? 180 : 80,
+                      minWidth: gamestate.players.length <= 6 ? 180 : 60,
                     ),
                     child: Text(
                       player.name,
