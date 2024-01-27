@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +66,15 @@ class Player extends ChangeNotifier {
   void addScore(int points) {
     score += points;
     notifyListeners();
+  }
+
+  calcTextSize(String text, TextStyle style){
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      textScaleFactor: WidgetsBinding.instance.window.textScaleFactor,
+    )..layout();
+    return textPainter.size;
   }
 }
 
@@ -469,6 +480,8 @@ class NameCardFull extends StatelessWidget {
               : 20,
       color: theme.colorScheme.onPrimary,
     );
+    var nameSize = player.calcTextSize(player.name, style);
+    player.score = nameSize.width.toInt();
 
     return Card(
         color: theme.colorScheme.primary,
