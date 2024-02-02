@@ -138,6 +138,17 @@ class GameState extends ChangeNotifier {
     for (var player in players) {
       player.score = startingScore;
     }
+    gameStart = true;
+  }
+
+  // a function for setting up the new game page
+  // has the option to clear the players
+  void clearGame(fullClear) {    
+    gameStart = false;
+    if (fullClear) {
+      players.clear();
+    }
+    notifyListeners();
   }
 
   calcTextSize(String text, TextStyle style) {
@@ -248,6 +259,8 @@ class ScorePage extends StatelessWidget {
                     ),
                 ]),
           ),
+          // This row will only be shown during a game
+          // It contains a score sort button, an add scores button and a reset game button
           if (gamestate.gameStart)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -265,7 +278,6 @@ class ScorePage extends StatelessWidget {
                 SizedBox(width: 15),
 
                 // A button for adding score to each player
-                // For now just adds random score -- Need to add input from user
                 IconButton(
                   icon: Icon(Icons.add),
                   color: theme.primaryColor,
@@ -281,8 +293,20 @@ class ScorePage extends StatelessWidget {
                     appState.update();
                   },
                 ),
+                SizedBox(width: 15),
+                // A button for adding score to each player
+                IconButton(
+                  icon: Icon(Icons.restart_alt_rounded),
+                  color: theme.primaryColor,
+                  onPressed: () {
+                    gamestate.clearGame(false);
+                    appState.update();
+                  },
+                ),
               ],
             )
+          // This row will only be shown before a game is started
+          // It contains a new player button and a start game button
           else if (!gamestate.gameStart)
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -292,17 +316,8 @@ class ScorePage extends StatelessWidget {
                     if (players.length < 12) {
                       showDialog(
                           context: context,
-                          builder: (BuildContext) => _newPlayerDialog(context));
-                      /*
-                    if (nameController.text != "") {
-                      appState.addPlayer(nameController.text);
-                    } else {
-                      showDialog(
-                          context: context,
                           builder: (BuildContext context) =>
-                              _warningPopupDialog(
-                                  context, "Please Enter a Valid Name"));
-                    }*/
+                              _newPlayerDialog(context));
                     } else {
                       showDialog(
                           context: context,
@@ -319,6 +334,7 @@ class ScorePage extends StatelessWidget {
                   color: theme.primaryColor,
                   onPressed: () {
                     gamestate.newGame();
+                    appState.update();
                   },
                   icon: Icon(Icons.play_arrow),
                 ),
