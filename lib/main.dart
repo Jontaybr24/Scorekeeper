@@ -135,15 +135,21 @@ class GameState extends ChangeNotifier {
   }
 
   void newGame() {
+    clearScores();
+    gameStart = true;
+  }
+
+  // clear scores will set all players scores to the default
+  void clearScores(){
     for (var player in players) {
       player.score = startingScore;
     }
-    gameStart = true;
   }
 
   // a function for setting up the new game page
   // has the option to clear the players
-  void clearGame(fullClear) {    
+  void clearGame(fullClear) {
+    clearScores();
     gameStart = false;
     if (fullClear) {
       players.clear();
@@ -299,7 +305,10 @@ class ScorePage extends StatelessWidget {
                   icon: Icon(Icons.restart_alt_rounded),
                   color: theme.primaryColor,
                   onPressed: () {
-                    gamestate.clearGame(false);
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            _resetDialog(context));
                     appState.update();
                   },
                 ),
@@ -471,6 +480,44 @@ Widget _newPlayerDialog(BuildContext context) {
       ],
     ),
   );
+}
+
+// Dialog for resettiing the game
+Widget _resetDialog(BuildContext context) {
+  var nameController = TextEditingController();
+  var appState = context.watch<MyAppState>();
+
+  return AlertDialog(
+      title: Text(
+        "Reset the game?",
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[],
+      ),
+      actions: <Widget>[
+        BackButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+            onPressed: () {
+              appState.gamestate.clearGame(true);
+              Navigator.of(context).pop();
+              appState.update();
+            },
+            child: Text("Clear Players")),
+        TextButton(
+            onPressed: () {
+              appState.gamestate.clearGame(false);
+              Navigator.of(context).pop();
+              appState.update();
+            },
+            child: Text("New Game"))
+      ]);
 }
 
 // A widget for displaying a players name and score
