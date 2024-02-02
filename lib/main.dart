@@ -164,10 +164,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = NewGamePage();
-      case 1:
         page = ScorePage();
-      case 2:
+      case 1:
         page = SettingsPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -185,10 +183,6 @@ class _MyHomePageState extends State<MyHomePage> {
             indicatorColor: Theme.of(context).colorScheme.onPrimary,
             selectedIndex: selectedIndex,
             destinations: const <Widget>[
-              NavigationDestination(
-                icon: Icon(Icons.add_circle_rounded),
-                label: 'New Game',
-              ),
               NavigationDestination(
                 icon: Icon(Icons.festival),
                 label: 'Scores',
@@ -211,44 +205,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// A temperary page for making a new game. Eventually needs to be merged with the score page
-class NewGamePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var gamestate = appState.gamestate;
-    var players = gamestate.players;
-    var theme = Theme.of(context);
-
-    // Texbox for naming a player
-    var nameController = TextEditingController();
-
-    return Center(
-        child: ConstrainedBox(
-      constraints: BoxConstraints(
-        // scaling for the score cards
-        minHeight: MediaQuery.of(context).size.height * 0.6,
-        maxHeight: MediaQuery.of(context).size.height * 0.6,
-        minWidth: MediaQuery.of(context).size.width * 0.85,
-        maxWidth: MediaQuery.of(context).size.width * 0.85,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          //for (var player in players) NameCardSmall(player: player),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: nameController,
-            keyboardType: TextInputType.name,
-          ),
-        ],
-      ),
-    ));
-  }
-}
-
 /*
 ** The Main page of the app once a game has been started
 ** Keeps score for all the players in the game
@@ -263,6 +219,8 @@ class ScorePage extends StatelessWidget {
     var size = MediaQuery.of(context).size;
 
     return Center(
+        child: SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -368,7 +326,7 @@ class ScorePage extends StatelessWidget {
             ),
         ],
       ),
-    );
+    ));
   }
 }
 
