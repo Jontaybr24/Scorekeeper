@@ -83,6 +83,7 @@ class GameState extends ChangeNotifier {
   ];
   var startingScore = 0;
   var players = <Player>[];
+  var gameStart = false;
 
   GameState();
 
@@ -139,7 +140,7 @@ class GameState extends ChangeNotifier {
     }
   }
 
-  calcTextSize(String text, TextStyle style){
+  calcTextSize(String text, TextStyle style) {
     final TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: style),
       textDirection: TextDirection.ltr,
@@ -242,41 +243,6 @@ class NewGamePage extends StatelessWidget {
             controller: nameController,
             keyboardType: TextInputType.name,
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (players.length < 12) {
-                    if (nameController.text != "") {
-                      appState.addPlayer(nameController.text);
-                    } else {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) =>
-                              _warningPopupDialog(
-                                  context, "Please Enter a Valid Name"));
-                    }
-                  } else {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) => _warningPopupDialog(
-                            context, "Player Limit Reached"));
-                  }
-                },
-                icon: Icon(Icons.add),
-                label: Text("New Player"),
-              ),
-              SizedBox(width: 10),
-              IconButton(
-                color: theme.primaryColor,
-                onPressed: () {
-                  gamestate.newGame();
-                },
-                icon: Icon(Icons.play_arrow),
-              ),
-            ],
-          ),
         ],
       ),
     ));
@@ -324,40 +290,82 @@ class ScorePage extends StatelessWidget {
                     ),
                 ]),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // A button for changing how the scores are sorted. The Icon is updated accordingly
-              IconButton(
-                icon: Icon(appState.gamestate.scoreTypeIcon()),
-                color: theme.primaryColor,
-                onPressed: () {
-                  gamestate.scoreSort();
-                  gamestate.sortPlayers();
-                  appState.update();
-                },
-              ),
-              SizedBox(width: 15),
+          if (gamestate.gameStart)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // A button for changing how the scores are sorted. The Icon is updated accordingly
+                IconButton(
+                  icon: Icon(appState.gamestate.scoreTypeIcon()),
+                  color: theme.primaryColor,
+                  onPressed: () {
+                    gamestate.scoreSort();
+                    gamestate.sortPlayers();
+                    appState.update();
+                  },
+                ),
+                SizedBox(width: 15),
 
-              // A button for adding score to each player
-              // For now just adds random score -- Need to add input from user
-              IconButton(
-                icon: Icon(Icons.add),
-                color: theme.primaryColor,
-                onPressed: () {
-                  for (var player in players) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) =>
-                          _scorePopupDialog(context, player),
-                    );
-                  }
-                  gamestate.sortPlayers();
-                  appState.update();
-                },
-              ),
-            ],
-          )
+                // A button for adding score to each player
+                // For now just adds random score -- Need to add input from user
+                IconButton(
+                  icon: Icon(Icons.add),
+                  color: theme.primaryColor,
+                  onPressed: () {
+                    for (var player in players) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) =>
+                            _scorePopupDialog(context, player),
+                      );
+                    }
+                    gamestate.sortPlayers();
+                    appState.update();
+                  },
+                ),
+              ],
+            )
+          else if (!gamestate.gameStart)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (players.length < 12) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext) => _newPlayerDialog(context));
+                      /*
+                    if (nameController.text != "") {
+                      appState.addPlayer(nameController.text);
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              _warningPopupDialog(
+                                  context, "Please Enter a Valid Name"));
+                    }*/
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              _warningPopupDialog(
+                                  context, "Player Limit Reached"));
+                    }
+                  },
+                  icon: Icon(Icons.add),
+                  label: Text("New Player"),
+                ),
+                SizedBox(width: 10),
+                IconButton(
+                  color: theme.primaryColor,
+                  onPressed: () {
+                    gamestate.newGame();
+                  },
+                  icon: Icon(Icons.play_arrow),
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -451,6 +459,43 @@ Widget _warningPopupDialog(BuildContext context, String message) {
         },
       )
     ],
+  );
+}
+
+Widget _newPlayerDialog(BuildContext context) {
+  var nameController = TextEditingController();
+  var appState = context.watch<MyAppState>();
+
+  return AlertDialog(
+    title: Text(
+      "New Player",
+      textAlign: TextAlign.center,
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        TextField(
+          controller: nameController,
+          keyboardType: TextInputType.name,
+          autofocus: true,
+          textAlign: TextAlign.center,
+          //inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onEditingComplete: () {
+            if (nameController.text != "") {
+              appState.addPlayer(nameController.text);
+              appState.update();
+              Navigator.of(context).pop();
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => _warningPopupDialog(
+                      context, "Please Enter a Valid Name"));
+            }
+          },
+        ),
+      ],
+    ),
   );
 }
 
