@@ -1,7 +1,4 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'dart:math';
 import 'player.dart';
 import 'gamestate.dart';
 
@@ -30,7 +27,7 @@ class NameCardFull extends StatelessWidget {
               : 19,
       color: theme.colorScheme.onPrimary,
     );
-    var nameSize = gamestate.calcTextSize(player.name, style);
+    //var nameSize = gamestate.calcTextSize(player.name, style);
     //player.score = nameSize.width.toInt();
 
     return Card(
